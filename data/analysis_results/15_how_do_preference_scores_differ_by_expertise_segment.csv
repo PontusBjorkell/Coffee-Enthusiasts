@@ -1,0 +1,17 @@
+expertise_segment,coffee_code,completed_ratings,average_preference
+Beginner,A,575,2.82
+Beginner,B,572,3.22
+Beginner,C,571,3.16
+Beginner,D,572,2.66
+Intermediate,A,1720,3.28
+Intermediate,B,1712,3.16
+Intermediate,C,1711,3.16
+Intermediate,D,1705,3.25
+Advanced,A,1366,3.54
+Advanced,B,1363,2.92
+Advanced,C,1362,2.94
+Advanced,D,1365,3.77
+Expert,A,120,3.54
+Expert,B,119,2.58
+Expert,C,118,2.72
+Expert,D,118,4.12

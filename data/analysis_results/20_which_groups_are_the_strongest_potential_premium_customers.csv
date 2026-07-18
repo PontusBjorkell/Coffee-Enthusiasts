@@ -1,0 +1,15 @@
+age,preferred_roast_level,premium_customer_count
+25-34 years old,Light,123
+35-44 years old,Light,81
+25-34 years old,Medium,40
+35-44 years old,Medium,30
+45-54 years old,Light,17
+18-24 years old,Light,15
+25-34 years old,Nordic,12
+45-54 years old,Medium,10
+35-44 years old,Nordic,9
+18-24 years old,Medium,7
+18-24 years old,Nordic,5
+25-34 years old,Dark,5
+35-44 years old,Dark,5
+55-64 years old,Medium,5
