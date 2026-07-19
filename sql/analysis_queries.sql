@@ -283,95 +283,39 @@ ORDER BY votes DESC;
 
 
 -- 15. How do preference scores differ by expertise segment?
-WITH segmented_ratings AS (
-    SELECT
-        t.coffee_code,
-        t.personal_preference,
-        CASE
-            WHEN h.expertise BETWEEN 1 AND 3 THEN 'Beginner'
-            WHEN h.expertise BETWEEN 4 AND 6 THEN 'Intermediate'
-            WHEN h.expertise BETWEEN 7 AND 8 THEN 'Advanced'
-            WHEN h.expertise BETWEEN 9 AND 10 THEN 'Expert'
-        END AS expertise_segment
-    FROM taste_tests AS t
-    JOIN coffee_habits AS h
-        ON t.submission_id = h.submission_id
-    WHERE
-        t.personal_preference IS NOT NULL
-        AND h.expertise IS NOT NULL
-)
 SELECT
     expertise_segment,
     coffee_code,
-    COUNT(*) AS completed_ratings,
-    ROUND(AVG(personal_preference), 2) AS average_preference
-FROM segmented_ratings
-GROUP BY
-    expertise_segment,
-    coffee_code
+    completed_ratings,
+    ROUND(
+        average_preference,
+        2
+    ) AS average_preference
+FROM vw_segment_coffee_performance
 ORDER BY
-    CASE expertise_segment
-        WHEN 'Beginner' THEN 1
-        WHEN 'Intermediate' THEN 2
-        WHEN 'Advanced' THEN 3
-        WHEN 'Expert' THEN 4
-    END,
+    expertise_segment_order,
     coffee_code;
 
 
 -- 16. How do acidity and bitterness perceptions vary by expertise?
-WITH sensory_segments AS (
-    SELECT
-        t.coffee_code,
-        t.bitterness,
-        t.acidity,
-        CASE
-            WHEN h.expertise BETWEEN 1 AND 3 THEN 'Beginner'
-            WHEN h.expertise BETWEEN 4 AND 6 THEN 'Intermediate'
-            WHEN h.expertise BETWEEN 7 AND 8 THEN 'Advanced'
-            WHEN h.expertise BETWEEN 9 AND 10 THEN 'Expert'
-        END AS expertise_segment
-    FROM taste_tests AS t
-    JOIN coffee_habits AS h
-        ON t.submission_id = h.submission_id
-    WHERE h.expertise IS NOT NULL
-)
 SELECT
     expertise_segment,
     coffee_code,
-    ROUND(AVG(bitterness), 2) AS average_bitterness,
-    ROUND(AVG(acidity), 2) AS average_acidity
-FROM sensory_segments
-GROUP BY
-    expertise_segment,
-    coffee_code
+    ROUND(
+        average_bitterness,
+        2
+    ) AS average_bitterness,
+    ROUND(
+        average_acidity,
+        2
+    ) AS average_acidity
+FROM vw_segment_coffee_performance
 ORDER BY
-    CASE expertise_segment
-        WHEN 'Beginner' THEN 1
-        WHEN 'Intermediate' THEN 2
-        WHEN 'Advanced' THEN 3
-        WHEN 'Expert' THEN 4
-    END,
+    expertise_segment_order,
     coffee_code;
 
 
 -- 17. Which coffee was selected overall by each expertise segment?
-WITH segmented_choices AS (
-    SELECT
-        o.preferred_overall,
-        CASE
-            WHEN h.expertise BETWEEN 1 AND 3 THEN 'Beginner'
-            WHEN h.expertise BETWEEN 4 AND 6 THEN 'Intermediate'
-            WHEN h.expertise BETWEEN 7 AND 8 THEN 'Advanced'
-            WHEN h.expertise BETWEEN 9 AND 10 THEN 'Expert'
-        END AS expertise_segment
-    FROM overall_preferences AS o
-    JOIN coffee_habits AS h
-        ON o.submission_id = h.submission_id
-    WHERE
-        o.preferred_overall IS NOT NULL
-        AND h.expertise IS NOT NULL
-)
 SELECT
     expertise_segment,
     preferred_overall,
@@ -383,17 +327,16 @@ SELECT
         ),
         1
     ) AS segment_vote_percentage
-FROM segmented_choices
+FROM vw_respondent_profile
+WHERE
+    expertise_segment != 'Unknown'
+    AND preferred_overall IS NOT NULL
 GROUP BY
     expertise_segment,
+    expertise_segment_order,
     preferred_overall
 ORDER BY
-    CASE expertise_segment
-        WHEN 'Beginner' THEN 1
-        WHEN 'Intermediate' THEN 2
-        WHEN 'Advanced' THEN 3
-        WHEN 'Expert' THEN 4
-    END,
+    expertise_segment_order,
     votes DESC;
 
 
@@ -405,106 +348,95 @@ ORDER BY
 -- 18. What is the distribution of monthly coffee spending?
 SELECT
     monthly_coffee_spend,
+    monthly_spend_band_order,
     COUNT(*) AS respondents,
     ROUND(
         100.0 * COUNT(*)
         / SUM(COUNT(*)) OVER (),
         1
     ) AS percentage
-FROM spending
+FROM vw_respondent_profile
 WHERE monthly_coffee_spend IS NOT NULL
-GROUP BY monthly_coffee_spend
-ORDER BY
-    CASE monthly_coffee_spend
-        WHEN '<$20' THEN 1
-        WHEN '$20-$40' THEN 2
-        WHEN '$40-$60' THEN 3
-        WHEN '$60-$80' THEN 4
-        WHEN '$80-$100' THEN 5
-        WHEN '>$100' THEN 6
-        ELSE 7
-    END;
+GROUP BY
+    monthly_coffee_spend,
+    monthly_spend_band_order
+ORDER BY monthly_spend_band_order;
 
 
 -- 19. Do more experienced consumers spend more each month?
 SELECT
-    CASE
-        WHEN h.expertise BETWEEN 1 AND 3 THEN 'Beginner'
-        WHEN h.expertise BETWEEN 4 AND 6 THEN 'Intermediate'
-        WHEN h.expertise BETWEEN 7 AND 8 THEN 'Advanced'
-        WHEN h.expertise BETWEEN 9 AND 10 THEN 'Expert'
-    END AS expertise_segment,
-    s.monthly_coffee_spend,
-    COUNT(*) AS respondents,
+    expertise_segment,
+    expertise_segment_order,
+
+    COUNT(
+        estimated_monthly_spend
+    ) AS respondents_with_spending_data,
+
     ROUND(
-        100.0 * COUNT(*)
-        / SUM(COUNT(*)) OVER (
-            PARTITION BY
-                CASE
-                    WHEN h.expertise BETWEEN 1 AND 3
-                        THEN 'Beginner'
-                    WHEN h.expertise BETWEEN 4 AND 6
-                        THEN 'Intermediate'
-                    WHEN h.expertise BETWEEN 7 AND 8
-                        THEN 'Advanced'
-                    WHEN h.expertise BETWEEN 9 AND 10
-                        THEN 'Expert'
-                END
-        ),
+        AVG(estimated_monthly_spend),
+        2
+    ) AS estimated_average_monthly_spend,
+
+    ROUND(
+        AVG(
+            CASE
+                WHEN monthly_spend_band_order >= 4
+                    THEN 1.0
+                ELSE 0.0
+            END
+        ) * 100.0,
         1
-    ) AS segment_percentage
-FROM coffee_habits AS h
-JOIN spending AS s
-    ON h.submission_id = s.submission_id
+    ) AS percentage_spending_at_least_60
+
+FROM vw_respondent_profile
+
 WHERE
-    h.expertise IS NOT NULL
-    AND s.monthly_coffee_spend IS NOT NULL
+    expertise_segment != 'Unknown'
+    AND estimated_monthly_spend IS NOT NULL
+
 GROUP BY
     expertise_segment,
-    s.monthly_coffee_spend
-ORDER BY
-    CASE expertise_segment
-        WHEN 'Beginner' THEN 1
-        WHEN 'Intermediate' THEN 2
-        WHEN 'Advanced' THEN 3
-        WHEN 'Expert' THEN 4
-    END,
-    CASE s.monthly_coffee_spend
-        WHEN '<$20' THEN 1
-        WHEN '$20-$40' THEN 2
-        WHEN '$40-$60' THEN 3
-        WHEN '$60-$80' THEN 4
-        WHEN '$80-$100' THEN 5
-        WHEN '>$100' THEN 6
-        ELSE 7
-    END;
+    expertise_segment_order
+
+ORDER BY expertise_segment_order;
 
 
 -- 20. Which groups are the strongest potential premium customers?
 --
--- Premium customers are defined here as respondents who:
---   1. Rate their expertise at 7 or higher, and
---   2. Spend at least $60 per month on coffee.
+-- Premium customers are defined as respondents who:
+--   1. Report expertise of 7 or higher; and
+--   2. Report monthly coffee spending of at least $60.
 SELECT
-    p.age,
-    h.preferred_roast_level,
-    COUNT(*) AS premium_customer_count
-FROM participants AS p
-JOIN coffee_habits AS h
-    ON p.submission_id = h.submission_id
-JOIN spending AS s
-    ON p.submission_id = s.submission_id
+    age,
+    preferred_roast_level,
+
+    COUNT(*) AS respondents,
+
+    SUM(
+        is_premium_customer
+    ) AS premium_customer_count,
+
+    ROUND(
+        100.0
+        * SUM(is_premium_customer)
+        / COUNT(*),
+        1
+    ) AS premium_customer_rate
+
+FROM vw_respondent_profile
+
 WHERE
-    h.expertise >= 7
-    AND s.monthly_coffee_spend IN (
-        '$60-$80',
-        '$80-$100',
-        '>$100'
-    )
-    AND p.age IS NOT NULL
-    AND h.preferred_roast_level IS NOT NULL
+    age IS NOT NULL
+    AND preferred_roast_level IS NOT NULL
+
 GROUP BY
-    p.age,
-    h.preferred_roast_level
-HAVING COUNT(*) >= 5
-ORDER BY premium_customer_count DESC;
+    age,
+    preferred_roast_level
+
+HAVING
+    COUNT(*) >= 20
+    AND SUM(is_premium_customer) >= 5
+
+ORDER BY
+    premium_customer_count DESC,
+    premium_customer_rate DESC;

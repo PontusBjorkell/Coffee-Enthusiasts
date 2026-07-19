@@ -1,6 +1,5 @@
-expertise_segment,respondents,average_expertise
-Advanced,1429,7.34
-Beginner,594,2.2
-Expert,128,9.31
-Intermediate,1787,5.28
-Unknown,104,
+expertise_segment,expertise_segment_order,respondents,average_expertise,estimated_average_monthly_spend,premium_customers,premium_customer_percentage
+Advanced,3,1429,7.343,50.81,344,24.1
+Beginner,1,594,2.199,31.61,0,0.0
+Expert,4,128,9.313,53.65,40,31.3
+Intermediate,2,1787,5.277,43.51,0,0.0

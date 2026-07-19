@@ -1,15 +1,14 @@
-age,preferred_roast_level,premium_customer_count
-25-34 years old,Light,123
-35-44 years old,Light,81
-25-34 years old,Medium,40
-35-44 years old,Medium,30
-45-54 years old,Light,17
-18-24 years old,Light,15
-25-34 years old,Nordic,12
-45-54 years old,Medium,10
-35-44 years old,Nordic,9
-18-24 years old,Medium,7
-18-24 years old,Nordic,5
-25-34 years old,Dark,5
-35-44 years old,Dark,5
-55-64 years old,Medium,5
+age,preferred_roast_level,respondents,premium_customer_count,premium_customer_rate
+25-34 years old,Light,970,123,12.7
+35-44 years old,Light,442,81,18.3
+25-34 years old,Medium,733,40,5.5
+35-44 years old,Medium,366,30,8.2
+45-54 years old,Light,109,17,15.6
+18-24 years old,Light,191,15,7.9
+25-34 years old,Nordic,43,12,27.9
+45-54 years old,Medium,131,10,7.6
+35-44 years old,Nordic,21,9,42.9
+18-24 years old,Medium,179,7,3.9
+35-44 years old,Dark,85,5,5.9
+55-64 years old,Medium,92,5,5.4
+25-34 years old,Dark,159,5,3.1

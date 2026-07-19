@@ -1,0 +1,17 @@
+expertise_segment,expertise_segment_order,coffee_code,completed_ratings,average_preference,average_bitterness,average_acidity
+Advanced,3,A,1366,3.539,2.081,3.672
+Advanced,3,B,1363,2.924,3.056,2.165
+Advanced,3,C,1362,2.937,3.144,2.268
+Advanced,3,D,1365,3.767,2.01,3.902
+Beginner,1,A,575,2.824,2.339,3.513
+Beginner,1,B,572,3.224,2.911,2.314
+Beginner,1,C,571,3.159,2.926,2.506
+Beginner,1,D,572,2.661,2.434,3.771
+Expert,4,A,120,3.542,1.967,3.758
+Expert,4,B,119,2.58,3.151,2.161
+Expert,4,C,118,2.72,3.263,2.322
+Expert,4,D,118,4.119,1.814,3.898
+Intermediate,2,A,1720,3.278,2.134,3.634
+Intermediate,2,B,1712,3.164,3.006,2.244
+Intermediate,2,C,1711,3.16,3.049,2.401
+Intermediate,2,D,1705,3.25,2.218,3.849
